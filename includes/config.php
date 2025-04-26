@@ -1,4 +1,4 @@
-<?
+<?php
 
 $DB_HOST = 'localhost'; // Database host
 $DB_USER = 'root'; // Database user
