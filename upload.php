@@ -1,56 +1,73 @@
 <?php
 include 'includes/header.php';
 
-
 $error = '';
 $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $title = $_POST['title'];
-    $description = $_POST['description'];
+    $title = htmlspecialchars(trim($_POST['title']));
+    $description = htmlspecialchars(trim($_POST['description']));
     $image = $_FILES['image'];
+
 
     if (empty($title) || empty($description)) {
         $error = "Please fill in all fields";
-    }
+    } else {
+        $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
+        if (!in_array($image['type'], $allowed_types)) {
+            $error = "Invalid file type. Only JPEG, PNG, and GIF are allowed.";
+        }
 
-    $target_dir = 'assets/images/';
 
-    if(!file_exists($target_dir)){
-        mkdir($target_dir, 0777, true);
-    }
-    $file = $image['name'];
-    $new_name = uniqid() . $file;
-    $target_file = $target_dir . $new_name;
+        if ($image['size'] > 5000000) {
+            $error = "File size is too large";
+        }
 
-    if($image['size'] > 5000000){
-        $error = "File size is too large";
-    }
-    if (empty($error)) {
-        if (move_uploaded_file($image['tmp_name'], $target_file)) {
-            $success = "File uploaded successfully";
-            $query = "INSERT INTO gallery (title, description, image) VALUES ('$title', '$description', '$new_name')";
-            $result = mysqli_query($conn, $query);
-            if (!$result) {
-                $error = "Error uploading file to database: " . mysqli_error($conn);
+
+        $target_dir = 'assets/images/';
+        if (!file_exists($target_dir)) {
+            mkdir($target_dir, 0755, true);
+        }
+
+        if (empty($error)) {
+            $file = $image['name'];
+            $new_name = uniqid() . $file;
+            $target_file = $target_dir . $new_name;
+
+            if (move_uploaded_file($image['tmp_name'], $target_file)) {
+
+                $query = "INSERT INTO images (title, description, filename) VALUES (:title, :description, :filename)";
+                $stmt = $pdo->prepare($query);
+
+                try {
+                    $stmt->execute([
+                        ':title' => $title,
+                        ':description' => $description,
+                        ':filename' => $new_name
+                    ]);
+                    $success = "Image uploaded successfully";
+                } catch (PDOException $e) {
+                    $error = "Failed to upload image: " . $e->getMessage();
+                }
+            } else {
+                $error = "Error uploading image";
             }
-        } else {
-            $error = "Error uploading file";
         }
     }
-
-
-
-
-
-
-
-
-
-
-
 }
 ?>
+
+
+
+
+
+
+
+
+
+
+
+
 
 <div class="container my-4">
     <div class="my-4">
