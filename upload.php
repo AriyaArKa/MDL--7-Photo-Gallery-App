@@ -13,6 +13,42 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (empty($title) || empty($description)) {
         $error = "Please fill in all fields";
     }
+
+    $target_dir = 'assets/images/';
+
+    if(!file_exists($target_dir)){
+        mkdir($target_dir, 0777, true);
+    }
+    $file = $image['name'];
+    $new_name = uniqid() . $file;
+    $target_file = $target_dir . $new_name;
+
+    if($image['size'] > 5000000){
+        $error = "File size is too large";
+    }
+    if (empty($error)) {
+        if (move_uploaded_file($image['tmp_name'], $target_file)) {
+            $success = "File uploaded successfully";
+            $query = "INSERT INTO gallery (title, description, image) VALUES ('$title', '$description', '$new_name')";
+            $result = mysqli_query($conn, $query);
+            if (!$result) {
+                $error = "Error uploading file to database: " . mysqli_error($conn);
+            }
+        } else {
+            $error = "Error uploading file";
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
 }
 ?>
 
