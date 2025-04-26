@@ -21,20 +21,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <h1>Photo Gallery</h1>
     </div>
 
+    <div class="container my-4">
+        <div class="row justify-content-align col-md-8">
+            <?php if ($success) : ?>
+                <div class="alert alert-success" role="alert">
+                    <?php echo $success; ?>
+                </div>
+            <?php endif ?>
 
-    <?php if ($success) : ?>
-        <div class="alert alert-success" role="alert">
-            <?php echo $success; ?>
+            <?php if ($error) : ?>
+                <div class="alert alert-danger" role="alert">
+                    <?php echo $error; ?>
+                </div>
+            <?php endif ?>
         </div>
-    <?php endif ?>
-
-    <?php if ($error) : ?>
-        <div class="alert alert-danger" role="alert">
-            <?php echo $$error; ?>
-        </div>
-    <?php endif ?>
-
-
+    </div>
 
 
 
